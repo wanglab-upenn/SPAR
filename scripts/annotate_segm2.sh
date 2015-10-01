@@ -1,16 +1,18 @@
 # annotate segments / peaks
 
 set -e
+source `dirname $0`/../config.sh
 verbose=0
 # input segmentation (both strands with segment IDs)
 INSEGM=$1 
 # col.5 = segment ID
 # col.4 = tissue name
-ANNOTS1=annot/hsa19.fulltable.no_mRNA_no_lncRNA_no_piRNA_nomiRP.unique_LOC.bed
-ANNOTS2=annot/hsa19.fulltable.miRPonly.unique_LOC.bed
-ANNOTS3=annot/hsa19.fulltable.no_mRNA_no_lncRNA_piRNAonly.unique_LOC.bed
-ANNOTS4=annot/hsa19.fulltable.no_mRNA_no_lncRNA_rRNAonly.unique_LOC.bed
-ANNOTS5=annot/hsa19.fulltable.no_mRNA_no_lncRNA.unique_LOC.bed
+ANNOTDIR=${SPARPATH}/annot
+ANNOTS1=${ANNOTDIR}/hsa19.fulltable.no_mRNA_no_lncRNA_no_piRNA_nomiRP.unique_LOC.bed
+ANNOTS2=${ANNOTDIR}/hsa19.fulltable.miRPonly.unique_LOC.bed
+ANNOTS3=${ANNOTDIR}/hsa19.fulltable.no_mRNA_no_lncRNA_piRNAonly.unique_LOC.bed
+ANNOTS4=${ANNOTDIR}/hsa19.fulltable.no_mRNA_no_lncRNA_rRNAonly.unique_LOC.bed
+ANNOTS5=${ANNOTDIR}/hsa19.fulltable.no_mRNA_no_lncRNA.unique_LOC.bed
 #INSEGMBASE=`basename ${INSEGM}`
 INSEGMBASE=${INSEGM}
 if [ ${verbose} -eq 1 ]; then echo "${INSEGMBASE}"; fi

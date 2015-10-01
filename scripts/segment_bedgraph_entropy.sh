@@ -1,3 +1,4 @@
+set -e
 INBG=$1 # input bedgraph
 
 strand=$2 # input strand: forward: "pos"; reverse: "neg"

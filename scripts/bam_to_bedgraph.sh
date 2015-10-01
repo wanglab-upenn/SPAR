@@ -1,4 +1,5 @@
-source config.sh
+set -e
+source `dirname $0`/../config.sh
 BAM=$1
 ${SAMTOOLS} view ${BAM} | \
 ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)

@@ -5,8 +5,9 @@
 # bash run_star_smrna.sh /mnt/niagads/users/yyee/tissues/hsa_adpilot_smrna/hsa_adpilot_ctl02058_smrna/1.5/hsa_adpilot_ctl02058_smrna_trimmed.fastq
 
 
+set -e
 
-source config.sh
+source `dirname $0`/../config.sh
 
 
 FASTQ=$1 # input FASTQ file

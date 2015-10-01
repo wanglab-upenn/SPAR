@@ -1,5 +1,6 @@
 
-source config.sh
+
+source `dirname $0`/config.sh
 
 set -e
 
@@ -107,5 +108,5 @@ numUnannot=$(cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed | wc -l)
 printL "\nUn-annotated loci count: ${numUnannot}"
 
 
-echo "Annotation summary:"
-cat ${OUTDIR}/mapped_reads_annotation_summary.txt
+printL "\nAnnotation summary:"
+printL "`cat ${OUTDIR}/mapped_reads_annotation_summary.txt`"

@@ -6,7 +6,7 @@ HOMEDIR=${HOME}
 BINDIR=${HOMEDIR}/bin
 
 #absolute path to the SPAR home directory
-SPARPATH=${BINDIR}/DASHR_github/DASHR/SPAR
+SPARPATH=${BINDIR}/SPAR_github/SPAR
 
 #absolute path to the SPAR output directory
 SPARDIR=${HOMEDIR}/SPAR_out
