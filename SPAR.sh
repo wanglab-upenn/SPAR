@@ -1,11 +1,20 @@
 
 source config.sh
 
+set -e
+
 INFASTQ=$1
 
-if [ ! -f ${INFASTQ} ]; then
+if [ $# -lt 1 ]
+then
+  echo "USAGE: `basename $0` reads.fastq"
+  exit 1
+fi
+
+
+if [ ! -f "${INFASTQ}" ]; then
   echo -e "*****ERROR: FASTQ file\n${INFASTQ}\nnot found!"
-  exit
+  exit 1
 fi
 
 
@@ -32,11 +41,21 @@ function runScript
   bash ${SPARPATH}/scripts/$1
 }
 
-echo -e "Output directory: ${OUTDIR}\n"
+function printT
+{
+  echo "`date +'%b %d %H:%M:%S'` ..... $1" | tee -a ${LOGSPAR}
+}
+
+function printL
+{
+  echo -e "$1" | tee -a ${LOGSPAR}
+}
+
+printL "Output directory:\n${OUTDIR}\n"
 
 printT "SPAR run started"
 
-runScript "run_star_smrna.sh ${TRIMFASTQ} ${maxMismatchCnt} ${maxMapCnt} ${OUTDIR}"
+runScript "run_star_smrna2.sh ${TRIMFASTQ} ${maxMismatchCnt} ${maxMapCnt} ${OUTDIR}"
 
 printT "Converting BAM to bedGraph"
 runScript "bam_to_bedgraph.sh ${OUTBAM}"
@@ -58,23 +77,35 @@ runScript "annotate_segm2.sh ${OUTBAM}.neg.bedgraph.segm"
 
 printT "DONE."
 
-echo "Mapping output:" | tee -a ${LOGSPAR}
-echo "${OUTBAM}" | tee -a ${LOGSPAR}
+cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
+cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
-echo "Annotation output:" | tee -a ${LOGSPAR}
+awk 'BEGIN{OFS="\t";}{if (NR==FNR) {exprVal=$5; rnaClass=$19; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
+
+
+printL "\n===Output==="
+printL "Output directory: ${OUTDIR}"
+printL "\nMapping output:"
+printL "${OUTBAM}"
+
+printL "Annotation output:"
 ls ${OUTBAM}.*.bedgraph.segm.annot.final | tee -a ${LOGSPAR}
 
-echo "Un-annotated output:" | tee -a ${LOGSPAR}
+printL "Un-annotated output:" 
 ls ${OUTBAM}.*.bedgraph.segm.unannotated.bed | tee -a ${LOGSPAR}
 
-echo -e "\n\n===Run summary===" | tee -a ${LOGSPAR}
+printL "\n\n===Run summary==="
+printL "FASTQ: ${TRIMFASTQ}"
 grep -e "Reads \[all\]" ${OUTDIR}/MAPSTAT.txt | awk 'BEGIN{FS="\t"}{printf "Mapped reads: %d [%.4f%%]\n", $2, $3}' | tee -a ${LOGSPAR}
 
 numAnnot=$(cat ${OUTBAM}.*.bedgraph.segm.annot.final | wc -l)
-echo "Annotated loci count: ${numAnnot}" | tee -a ${LOGSPAR}
-echo "Annotated loci by RNA class:" | tee -a ${LOGSPAR}
+printL "Annotated loci count: ${numAnnot}"
+printL "Annotated loci by RNA class:"
 cat ${OUTBAM}.*.bedgraph.segm.annot.final | cut -f 19 | sort | uniq -c | awk 'BEGIN{OFS="\t"}{print $2,$1}' | sort -k2,2nr | tee -a ${LOGSPAR}
 
 numUnannot=$(cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed | wc -l)
-echo -e "\nUn-annotated loci count: ${numUnannot}" | tee -a ${LOGSPAR}
+printL "\nUn-annotated loci count: ${numUnannot}"
 
+
+echo "Annotation summary:"
+cat ${OUTDIR}/mapped_reads_annotation_summary.txt
