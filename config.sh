@@ -1,12 +1,12 @@
 #SPAR config file
 
-HOMEDIR=${HOME}
+HOMEDIR=/home/pkuksa #${HOME}
 
 #absolute path to the bin directory
 BINDIR=${HOMEDIR}/bin
 
 #absolute path to the SPAR home directory
-SPARPATH=${BINDIR}/SPAR_github/SPAR
+#SPARPATH=${BINDIR}/SPAR_github/SPAR
 
 #absolute path to the SPAR output directory
 SPARDIR=${HOMEDIR}/SPAR_out
@@ -21,7 +21,7 @@ BGTOBIGWIG=${BINDIR}/bedGraphToBigWig
 genomeDir=${HOMEDIR}/datasets/hg19/star_2.4.0k/  # STAR genome index
 
 #hg 19 chromosome information file
-chromInfo=${SPARPATH}/annot/chromInfo.txt
+#chromInfo=${SPARPATH}/annot/chromInfo.txt
 
 #mapping parameters for STAR
 maxMismatchCnt=0

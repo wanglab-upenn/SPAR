@@ -25,6 +25,9 @@ TRIMFASTQ=${INFASTQ}
 EXPNAME=`basename ${TRIMFASTQ}`
 EXPNAME=${EXPNAME%_*}
 
+SPARDIR=${2:-${SPARDIR}}
+SPARPATH=`dirname $0`
+
 OUTDIR=${SPARDIR}/STAR/STAR_m${maxMismatchCnt}_map${maxMapCnt}_${EXPNAME}
 OUTDIR=${SPARDIR}/${EXPNAME}_m${maxMismatchCnt}_map${maxMapCnt}
 mkdir -p ${OUTDIR}
