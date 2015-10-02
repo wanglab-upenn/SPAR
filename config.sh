@@ -8,7 +8,7 @@ BINDIR=${HOMEDIR}/bin
 #absolute path to the SPAR home directory
 #SPARPATH=${BINDIR}/SPAR_github/SPAR
 
-#absolute path to the SPAR output directory
+# (default) absolute path to the SPAR output directory
 SPARDIR=${HOMEDIR}/SPAR_out
 
 #absolute path to pre-installed STAR, samtools, AWK, etc

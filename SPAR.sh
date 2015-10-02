@@ -8,7 +8,7 @@ INFASTQ=$1
 
 if [ $# -lt 1 ]
 then
-  echo "USAGE: `basename $0` reads.fastq"
+  echo "USAGE: `basename $0` reads.fastq <SPAR_output_directory>"
   exit 1
 fi
 
@@ -28,7 +28,6 @@ EXPNAME=${EXPNAME%_*}
 SPARDIR=${2:-${SPARDIR}}
 SPARPATH=`dirname $0`
 
-OUTDIR=${SPARDIR}/STAR/STAR_m${maxMismatchCnt}_map${maxMapCnt}_${EXPNAME}
 OUTDIR=${SPARDIR}/${EXPNAME}_m${maxMismatchCnt}_map${maxMapCnt}
 mkdir -p ${OUTDIR}
 
@@ -81,10 +80,16 @@ runScript "annotate_segm2.sh ${OUTBAM}.neg.bedgraph.segm"
 
 printT "DONE."
 
-cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
-cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
-awk 'BEGIN{OFS="\t";}{if (NR==FNR) {exprVal=$5; rnaClass=$19; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
+#chr,a,b,peakID,exprVal,strand,entropy5p,normEntropy5p,maxEntropy5p, entropy3p, normEntropy3p, maxEntropy3p, maxProb5p, maxProb3p;
+
+# add headers
+awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction""annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
+awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
+#cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
+#cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
+
+awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$19; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
 
 
 printL "\n===Output==="
