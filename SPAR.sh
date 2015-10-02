@@ -98,10 +98,23 @@ printL "\nMapping output:"
 printL "${OUTBAM}"
 
 printL "Annotation output:"
-ls ${OUTBAM}.*.bedgraph.segm.annot.final | tee -a ${LOGSPAR}
+#ls ${OUTBAM}.*.bedgraph.segm.annot.final | tee -a ${LOGSPAR}
+ls ${OUTBAM}.annot.final | tee -a ${LOGSPAR}
 
 printL "Un-annotated output:" 
-ls ${OUTBAM}.*.bedgraph.segm.unannotated.bed | tee -a ${LOGSPAR}
+#ls ${OUTBAM}.*.bedgraph.segm.unannotated.bed | tee -a ${LOGSPAR}
+ls ${OUTBAM}.unannot | tee -a ${LOGSPAR}
+
+
+printL "\nAnnotation summary:"
+ls ${OUTDIR}/mapped_reads_annotation_summary.txt | tee -a ${LOGSPAR}
+
+printL "\nMapping stats:"
+ls ${OUTDIR}/MAPSTAT.txt | tee -a ${LOGSPAR}
+
+printL "\nMapped reads alignment summary:"
+ls ${OUTDIR}/cigar.stat | tee -a ${LOGSPAR}
+
 
 printL "\n\n===Run summary==="
 printL "FASTQ: ${TRIMFASTQ}"
@@ -117,4 +130,6 @@ printL "\nUn-annotated loci count: ${numUnannot}"
 
 
 printL "\nAnnotation summary:"
+ls ${OUTDIR}/mapped_reads_annotation_summary.txt | tee -a ${LOGSPAR}
+
 printL "`cat ${OUTDIR}/mapped_reads_annotation_summary.txt`"
