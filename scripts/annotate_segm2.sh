@@ -20,7 +20,7 @@ if [ ${verbose} -eq 1 ]; then echo "${INSEGMBASE}"; fi
 # step1.
 # 1.1 overlap with miRNA-5p/3p/5p3pno, snoRNA, snRNA, scRNA, tRF3, tRF5, tRNA
 
-bedtools intersect -a ${INSEGM}  -b ${ANNOTS1} -wao -s -f 0.8 > ${INSEGMBASE}.step1.bed
+${BEDTOOLS} intersect -a ${INSEGM}  -b ${ANNOTS1} -wao -s -f 0.8 > ${INSEGMBASE}.step1.bed
 
 # 1.2 col. 8 = -1 put for the next step
 numFields=$(awk '{print NF; exit}' ${INSEGM})
@@ -54,7 +54,7 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 # step 2.
 # overlap with miRNA precursor
 
-bedtools intersect -a ${INSEGMBASE}.forstep2.bed -b ${ANNOTS2} -wao -s -f 0.8 > ${INSEGMBASE}.step2.bed 
+${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep2.bed -b ${ANNOTS2} -wao -s -f 0.8 > ${INSEGMBASE}.step2.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.forstep3.bed"}{
        
@@ -73,7 +73,7 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 # step 3.
 # overlap with piRNA
 
-bedtools intersect -a ${INSEGMBASE}.forstep3.bed -b ${ANNOTS3} -wao -s -f 0.8 > ${INSEGMBASE}.step3.bed 
+${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep3.bed -b ${ANNOTS3} -wao -s -f 0.8 > ${INSEGMBASE}.step3.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.forstep4.bed"}{
        
@@ -100,7 +100,7 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 # step 4.
 # annotate rRNA
 
-bedtools intersect -a ${INSEGMBASE}.forstep4.bed -b ${ANNOTS4} -wao -s -f 0.8 > ${INSEGMBASE}.step4.bed 
+${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep4.bed -b ${ANNOTS4} -wao -s -f 0.8 > ${INSEGMBASE}.step4.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.forstep5.bed"}{
        
@@ -127,7 +127,7 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 
 # step 5. 
 # re-annotate remaining segments/peaks without restriction on the overlapping criteria
-bedtools intersect -a ${INSEGMBASE}.forstep5.bed -b ${ANNOTS5} -wao -s > ${INSEGMBASE}.step5.bed 
+${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep5.bed -b ${ANNOTS5} -wao -s > ${INSEGMBASE}.step5.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.unannotated.bed"}{
        
@@ -151,5 +151,6 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
                   prev_segmID = $5;
                 }' > ${INSEGMBASE}.step5.annot.out
 
-cat ${INSEGMBASE}.*.annot.out > ${INSEGMBASE}.annot.final
+#cat ${INSEGMBASE}.*.annot.out > ${INSEGMBASE}.annot.final
+cat ${INSEGMBASE}.*.annot.out | sort -k1,1 -k2,2n -k3,3n -k6,6 > ${INSEGMBASE}.annot.final
 rm ${INSEGMBASE}*step*.*

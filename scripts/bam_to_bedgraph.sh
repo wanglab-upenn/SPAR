@@ -92,6 +92,11 @@ ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)
          process_chr_coverage( rcov_minus, n, chr_prev, outfile )     
          split("",rcov_minus,":") # clear coverage array
          chrLen = 0;
-     }'
+     }' 
+
+# need to sort because of unnatural order of samtools view 
+# sort by chr, chrStart, chrEnd
+sort -k1,1 -k2,2n -k3,3n ${BAM}.pos.bedgraph -o ${BAM}.pos.bedgraph
+sort -k1,1 -k2,2n -k3,3n ${BAM}.neg.bedgraph -o ${BAM}.neg.bedgraph
 
 printT "BEDGRAPH finished successfuly."

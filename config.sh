@@ -14,6 +14,8 @@ SPARDIR=${HOMEDIR}/SPAR_out
 #absolute path to pre-installed STAR, samtools, AWK, etc
 STAR=${BINDIR}/STAR-STAR_2.4.0k/bin/Linux_x86_64/STAR # STAR
 SAMTOOLS=${BINDIR}/samtools-1.2/samtools # SAMTOOLS
+#BEDTOOLS=${BINDIR}/bedtools2/bin/bedtools # BEDTOOLS
+BEDTOOLS=/usr/local/bin/bedtools # BEDTOOLS
 GAWK=${BINDIR}/gawk-4.1.0/gawk
 BGTOBIGWIG=${BINDIR}/bedGraphToBigWig
 

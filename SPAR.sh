@@ -89,7 +89,7 @@ awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionVa
 #cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
 #cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
-awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$19; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
+awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$19; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
 
 
 printL "\n===Output==="
@@ -122,11 +122,11 @@ grep -e "Reads \[all\]" ${OUTDIR}/MAPSTAT.txt | awk 'BEGIN{FS="\t"}{printf "Mapp
 
 numAnnot=$(cat ${OUTBAM}.*.bedgraph.segm.annot.final | wc -l)
 printL "Annotated loci count: ${numAnnot}"
-printL "Annotated loci by RNA class:"
-cat ${OUTBAM}.*.bedgraph.segm.annot.final | cut -f 19 | sort | uniq -c | awk 'BEGIN{OFS="\t"}{print $2,$1}' | sort -k2,2nr | tee -a ${LOGSPAR}
+#printL "Annotated loci by RNA class:"
+#cat ${OUTBAM}.*.bedgraph.segm.annot.final | cut -f 19 | sort | uniq -c | awk 'BEGIN{OFS="\t"}{print $2,$1}' | sort -k2,2nr | tee -a ${LOGSPAR}
 
 numUnannot=$(cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed | wc -l)
-printL "\nUn-annotated loci count: ${numUnannot}"
+printL "Un-annotated loci count: ${numUnannot}"
 
 
 printL "\nAnnotation summary:"

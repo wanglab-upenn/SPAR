@@ -9,6 +9,13 @@ set -e
 
 source `dirname $0`/../config.sh
 
+OUTDIR=$4
+LOGSPAR=${OUTDIR}/SPAR.log
+function printT
+{
+  echo "`date +'%b %d %H:%M:%S'` ..... $1" | tee -a ${LOGSPAR}
+}
+
 
 FASTQ=$1 # input FASTQ file
          # <tissue>_<SRR>_trimmed.fastq
@@ -21,6 +28,7 @@ mkdir -p ${starOutDir}
 
 
 # run STAR
+printT "Mapping reads"
 ${STAR} --genomeDir ${genomeDir} --genomeLoad LoadAndKeep  --readFilesIn ${FASTQ} --runThreadN 4 --alignIntronMax 1 --outSAMattributes NH HI NM MD --outFilterMultimapNmax ${multiMapMax} --outReadsUnmapped Fastx --outFilterMismatchNmax ${maxMismatchCnt} --outFilterMatchNmin ${minMappedLength} --outFileNamePrefix ${starOutDir}/
 
 nFastQReads=$(grep -e "Number of input reads" ${starOutDir}/Log.final.out | cut -f 2)
