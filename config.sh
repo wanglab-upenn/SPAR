@@ -18,6 +18,7 @@ SAMTOOLS=${BINDIR}/samtools-1.2/samtools # SAMTOOLS
 BEDTOOLS=/usr/local/bin/bedtools # BEDTOOLS
 GAWK=${BINDIR}/gawk-4.1.0/gawk
 BGTOBIGWIG=${BINDIR}/bedGraphToBigWig
+CUTADAPT=${BINDIR}/cutadapt-1.8.1/bin/cutadapt
 
 #absolute path to the STAR genome index
 genomeDir=${HOMEDIR}/datasets/hg19/star_2.4.0k/  # STAR genome index
