@@ -1,7 +1,17 @@
 set -e
 source `dirname $0`/../config.sh
-BAM=$1
-${SAMTOOLS} view ${BAM} | \
+INBAM=$1
+
+BAM=`basename ${INBAM}`
+BAMDIR=`dirname ${INBAM}`
+
+
+# directory where output will be saved
+# directory is either provided as input argument or is the same as the input BAM directory
+OUTDIR=${2:-${BAMDIR}}
+mkdir -p ${OUTDIR}
+
+${SAMTOOLS} view ${INBAM} | \
 ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)
       {
        # numerical index comparison, ascending order
@@ -66,13 +76,13 @@ ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)
          n = chrLen; #chrLen[chr_prev]
          if (verbose==1) 
            printf "Processing %s [len=%d, Watson strand]\n", chr_prev, n
-         outfile = "'${BAM}'.pos.bedgraph"
+         outfile = "'${OUTDIR}'/'${BAM}'.pos.bedgraph"
  
          process_chr_coverage( rcov_plus, n, chr_prev, outfile )     
          split("",rcov_plus,":") # clear coverage array
          if (verbose==1)
            printf "Processing %s [len=%d, Crick strand]\n", chr_prev, n
-         outfile = "'${BAM}'.neg.bedgraph"
+         outfile = "'${OUTDIR}'/'${BAM}'.neg.bedgraph"
          process_chr_coverage( rcov_minus, n, chr_prev, outfile )     
          split("",rcov_minus,":") # clear coverage array
          chrLen = 0;
@@ -84,12 +94,12 @@ ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)
          n = chrLen; #chrLen[chr_prev]
          if (verbose==1)
            printf "Processing %s [len=%d, Watson strand]\n", chr_prev, n
-         outfile = "'${BAM}'.pos.bedgraph"
+         outfile = "'${OUTDIR}'/'${BAM}'.pos.bedgraph"
          process_chr_coverage( rcov_plus, n, chr_prev, outfile )     
          split("",rcov_plus,":") # clear coverage array
          if (verbose==1)
            printf "Processing %s [len=%d, Crick strand]\n", chr_prev, n
-         outfile = "'${BAM}'.neg.bedgraph"
+         outfile = "'${OUTDIR}'/'${BAM}'.neg.bedgraph"
          process_chr_coverage( rcov_minus, n, chr_prev, outfile )     
          split("",rcov_minus,":") # clear coverage array
          chrLen = 0;
@@ -97,7 +107,7 @@ ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)
 
 # need to sort because of unnatural order of samtools view 
 # sort by chr, chrStart, chrEnd
-sort -k1,1 -k2,2n -k3,3n ${BAM}.pos.bedgraph -o ${BAM}.pos.bedgraph
-sort -k1,1 -k2,2n -k3,3n ${BAM}.neg.bedgraph -o ${BAM}.neg.bedgraph
+sort -k1,1 -k2,2n -k3,3n ${OUTDIR}/${BAM}.pos.bedgraph -o ${OUTDIR}/${BAM}.pos.bedgraph
+sort -k1,1 -k2,2n -k3,3n ${OUTDIR}/${BAM}.neg.bedgraph -o ${OUTDIR}/${BAM}.neg.bedgraph
 
 printT "BEDGRAPH finished successfuly."
