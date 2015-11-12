@@ -81,7 +81,7 @@ awk 'function computeEntropy(ent, cntArray)
                normEntropy5p = ent[3];
                maxEntropy5p = ent[2];
                maxProb5p = ent[6]               
-               cnt3p[b-a+1]+=val_prev-0;
+               cnt3p[b-a+1-1]+=val_prev-0;
                computeEntropy(ent, cnt3p);
                entropy3p = ent[1];
                normEntropy3p = ent[3];
@@ -143,7 +143,7 @@ awk 'function computeEntropy(ent, cntArray)
                normEntropy5p = ent[3];
                maxEntropy5p = ent[2];
                maxProb5p = ent[6];
-               cnt3p[$2-a+1]+=val_prev-val;
+               cnt3p[b-a+1-1]+=val_prev-val;
                computeEntropy(ent, cnt3p);
                entropy3p = ent[1];
                normEntropy3p = ent[3];

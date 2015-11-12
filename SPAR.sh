@@ -61,16 +61,27 @@ printT "SPAR run started"
 runScript "run_star_smrna2.sh ${TRIMFASTQ} ${maxMismatchCnt} ${maxMapCnt} ${OUTDIR}"
 
 printT "Converting BAM to bedGraph"
-runScript "bam_to_bedgraph.sh ${OUTBAM}"
+runScript "bam_to_bedgraph2.sh ${OUTBAM}"
 
 printT "Converting bedGraph to bigWig"
 runScript "bedgraph_to_bigwig.sh ${OUTBAM}.pos.bedgraph"
 runScript "bedgraph_to_bigwig.sh ${OUTBAM}.neg.bedgraph"
 
 printT "Segmenting [positive strand]"
-runScript "segment_bedgraph_entropy.sh ${OUTBAM}.pos.bedgraph pos"
+#runScript "segment_bedgraph_entropy.sh ${OUTBAM}.pos.bedgraph pos"
+runScript "segment_bedgraph_entropy_position.sh ${OUTBAM}.pos.bedgraph pos"
 printT "Segmenting [negative strand]"
-runScript "segment_bedgraph_entropy.sh ${OUTBAM}.neg.bedgraph neg"
+#runScript "segment_bedgraph_entropy.sh ${OUTBAM}.neg.bedgraph neg"
+runScript "segment_bedgraph_entropy_position.sh ${OUTBAM}.neg.bedgraph neg"
+
+printT "Creating track files (Raw signal)"
+runScript "create_bedgraph_track.sh ${OUTBAM}.pos.bedgraph"
+runScript "create_bedgraph_track.sh ${OUTBAM}.neg.bedgraph"
+
+printT "Creating track files (Called peaks)"
+runScript "create_peak_track.sh ${OUTBAM}.pos.bedgraph.segm"
+runScript "create_peak_track.sh ${OUTBAM}.neg.bedgraph.segm"
+
 
 printT "Annotating [positive strand]"
 runScript "annotate_segm2.sh ${OUTBAM}.pos.bedgraph.segm"
@@ -84,18 +95,23 @@ printT "DONE."
 #chr,a,b,peakID,exprVal,strand,entropy5p,normEntropy5p,maxEntropy5p, entropy3p, normEntropy3p, maxEntropy3p, maxProb5p, maxProb3p;
 
 # add headers
-awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction""annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
-awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
+awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition", "annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
+awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 #cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
 #cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
-awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$19; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
+awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
 
 
 printL "\n===Output==="
 printL "Output directory: ${OUTDIR}"
 printL "\nMapping output:"
 printL "${OUTBAM}"
+
+printL "\nTrack files (Raw signal):"
+ls ${OUTBAM}*.bigWig | tee -a ${LOGSPAR}
+printL "\nTrack files (Called peaks):"
+ls ${OUTBAM}*.bigBed | tee -a ${LOGSPAR}
 
 printL "Annotation output:"
 #ls ${OUTBAM}.*.bedgraph.segm.annot.final | tee -a ${LOGSPAR}
