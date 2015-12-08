@@ -100,7 +100,45 @@ awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionVa
 #cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
 #cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
-awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${OUTDIR}/mapped_reads_annotation_summary.txt
+# annotation summary
+annotSummary=${OUTDIR}/mapped_reads_annotation_summary.txt
+awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${annotSummary} 
+finalAnnot="${OUTBAM}.annot.final"
+
+
+awk 'BEGIN{FS="\t"; OFS="\t";}
+     {
+       if (NR==1) next;
+       annotID=$20;
+       n=split(annotID,a,":");
+       geneID=a[n];
+       annotClass=$21;
+       if (ids[geneID]!=1)
+       {
+          geneCnt[annotClass]+=1;
+          ids[geneID]=1;
+       }
+     }
+     END{ for (c in geneCnt)
+           print c, geneCnt[c]
+     }' ${finalAnnot} | sort -k1,1 | awk 'BEGIN{OFS="\t"; FS="\t"; print "#RNA class", "Genes"}{print}' >> ${annotSummary}
+
+annotLengthSummary=${OUTDIR}/length.stats
+echo -e "\nLength of annotated peaks:\n" >> ${annotLengthSummary}
+awk 'BEGIN{FS="\t"; OFS="\t"}
+     {
+       if (NR==1) next;
+       peakStart = $2; # 0-based
+       peakEnd = $3; # 1-based according to 0-based, half-open UCSC notation
+       peakLength = peakEnd-peakStart;
+       lengthCnt[peakLength]+=1;  
+     }
+     END{ for (l in lengthCnt)
+            print l, lengthCnt[l];
+     }' ${finalAnnot} | sort -k1,1n | awk 'BEGIN{FS="\t"; OFS="\t"; print "PeakLength", "Count"}{print}' >> ${annotLengthSummary}
+
+
+
 
 
 printL "\n===Output==="

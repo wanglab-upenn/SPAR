@@ -5,6 +5,14 @@ source `dirname $0`/../config.sh
 verbose=0
 # input segmentation (both strands with segment IDs)
 INSEGM=$1 
+nsegm=$(wc -l ${INSEGM} | awk '{print $1}')
+if [ "${nsegm}" -eq 0 ]; then
+   INSEGMBASE=${INSEGM}
+   >${INSEGMBASE}.annot.final
+   >${INSEGMBASE}.unannotated.bed
+   echo "SKIPPING: ${INSEGM} is empty"
+   exit
+fi
 # col.5 = segment ID
 # col.4 = tissue name
 #ANNOTDIR=${SPARPATH}/annot
