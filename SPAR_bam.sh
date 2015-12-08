@@ -30,6 +30,7 @@ fi
 EXPNAME=`basename "${INFILE}" ".${FILETYPE}"`
 #EXPNAME=${EXPNAME%_*}
 
+
 SPARDIR=${2:-${SPARDIR}}
 SPARPATH=`dirname $0`
 
@@ -39,17 +40,21 @@ if [ "${isBAM}" = 0 ]; then
   OUTDIR=${SPARDIR}/${EXPNAME}_m${maxMismatchCnt}_map${maxMapCnt}
   OUTBAM=${OUTDIR}/Aligned.out.filtered.hardClipped.sorted.bam
 else
-  OUTDIR=${SPARDIR}/${EXPNAME}
-  #SYMBLINKOUTBAM=${OUTDIR}/`basename "${INFILE}"`
-  #ln -s ${INFILE} ${SYMBLINKOUTBAM}
-  #OUTBAM=${SYMBLINKOUTBAM} 
+  # if input is mapped BAM file
+  if [ -z "$2" ]; then
+    # if no output directory is provided, use BAM file directory
+    OUTDIR=`dirname ${INFILE}`  #${SPARDIR}/${EXPNAME}
+  else
+    # if output directory is specified, use it
+    OUTDIR=$2
+  fi
   OUTBAM=${INFILE}
 fi
 echo "FILETYPE=${FILETYPE}; isBAM=${isBAM}; EXPNAME=${EXPNAME}; OUTDIR=${OUTDIR}; OUTBAM=${OUTBAM}"
-#exit
 mkdir -p ${OUTDIR}
 
 LOGSPAR=${OUTDIR}/SPAR.log
+LOGSPAR=${OUTDIR}/`basename ${INFILE}`.SPAR.log
 >${LOGSPAR}
 
 function runScript
@@ -144,7 +149,7 @@ fi
 #cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
 # annotation summary
-annotSummary=${OUTDIR}/mapped_reads_annotation_summary.txt
+annotSummary=${OUTBAM}.mapped_reads_annotation_summary.txt
 #awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${annotSummary} 
 awk 'BEGIN{OFS="\t";totalAnnotPeakCnt=0; totalUnannotPeakCnt=0;totalExprAnnot=0;totalExprUnannot=0;}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; propAnnot=0; if (totalExpr>0) propAnnot=totalExprAnnot/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, propAnnot; propUnannot=0; if (totalExpr>0) propUnannot=totalExprUnannot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,propUnannot}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${annotSummary} 
 finalAnnot="${OUTBAM}.annot.final"
@@ -168,7 +173,7 @@ awk 'BEGIN{FS="\t"; OFS="\t";}
            print c, geneCnt[c]
      }' ${finalAnnot} | sort -k1,1 | awk 'BEGIN{OFS="\t"; FS="\t"; print "#RNA class", "Genes"}{print}' >> ${annotSummary}
 
-annotLengthSummary=${OUTDIR}/annot.peak.length.stats
+annotLengthSummary=${OUTBAM}.annot.peak.length.stats
 >${annotLengthSummary}
 #echo -e "\nLength of annotated peaks:\n" >> ${annotLengthSummary}
 awk 'BEGIN{FS="\t"; OFS="\t"}
@@ -187,7 +192,7 @@ awk 'BEGIN{FS="\t"; OFS="\t"}
           }
      }' ${finalAnnot} | sort -k1,1n | awk 'BEGIN{FS="\t"; OFS="\t"; print "#PeakLength", "Count", "Fraction"}{print}' > ${annotLengthSummary}
 
-unannotLengthSummary=${OUTDIR}/unannot.peak.length.stats
+unannotLengthSummary=${OUTBAM}.unannot.peak.length.stats
 >${unannotLengthSummary}
 #echo -e "\nLength of annotated peaks:\n" >> ${annotLengthSummary}
 awk 'BEGIN{FS="\t"; OFS="\t"}
@@ -230,7 +235,8 @@ ls ${OUTBAM}.unannot | tee -a ${LOGSPAR}
 
 
 printL "\nAnnotation summary:"
-ls ${OUTDIR}/mapped_reads_annotation_summary.txt | tee -a ${LOGSPAR}
+#ls ${OUTDIR}/mapped_reads_annotation_summary.txt | tee -a ${LOGSPAR}
+ls ${annotSummary}  | tee -a ${LOGSPAR}
 
 if [ "${isBAM}" = 0 ]; then 
   printL "\nMapping stats:"
@@ -260,6 +266,8 @@ printL "Un-annotated loci count: ${numUnannot}"
 
 
 printL "\nAnnotation summary:"
-ls ${OUTDIR}/mapped_reads_annotation_summary.txt | tee -a ${LOGSPAR}
+#ls ${OUTDIR}/mapped_reads_annotation_summary.txt | tee -a ${LOGSPAR}
+ls ${annotSummary} | tee -a ${LOGSPAR}
 
-printL "`cat ${OUTDIR}/mapped_reads_annotation_summary.txt`"
+#printL "`cat ${OUTDIR}/mapped_reads_annotation_summary.txt`"
+printL "`cat ${annotSummary}`"
