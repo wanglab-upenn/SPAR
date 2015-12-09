@@ -62,6 +62,12 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 # step 2.
 # overlap with miRNA precursor
 
+if [ ! -f "${INSEGMBASE}.forstep2.bed" ]; then
+  #exit, if nothing to do in step 2
+  echo "SKIPPING: nothing to do for STEP 2"
+  exit
+fi
+
 ${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep2.bed -b ${ANNOTS2} -wao -s -f 0.8 > ${INSEGMBASE}.step2.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.forstep3.bed"}{
@@ -80,6 +86,14 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
  
 # step 3.
 # overlap with piRNA
+
+if [ ! -f "${INSEGMBASE}.forstep3.bed" ]; then
+  #exit, if nothing to do in step 3
+  echo "SKIPPING: nothing to do for STEP 3"
+  exit
+fi
+
+
 
 ${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep3.bed -b ${ANNOTS3} -wao -s -f 0.8 > ${INSEGMBASE}.step3.bed 
 
@@ -108,6 +122,14 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 # step 4.
 # annotate rRNA
 
+if [ ! -f "${INSEGMBASE}.forstep4.bed" ]; then
+  #exit, if nothing to do in step 4
+  echo "SKIPPING: nothing to do for STEP 4"
+  exit
+fi
+
+
+
 ${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep4.bed -b ${ANNOTS4} -wao -s -f 0.8 > ${INSEGMBASE}.step4.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.forstep5.bed"}{
@@ -135,6 +157,13 @@ awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputField
 
 # step 5. 
 # re-annotate remaining segments/peaks without restriction on the overlapping criteria
+
+if [ ! -f "${INSEGMBASE}.forstep5.bed" ]; then
+  #exit, if nothing to do in step 5
+  echo "SKIPPING: nothing to do for STEP 5"
+  exit
+fi
+
 ${BEDTOOLS} intersect -a ${INSEGMBASE}.forstep5.bed -b ${ANNOTS5} -wao -s > ${INSEGMBASE}.step5.bed 
 
 awk 'BEGIN{OFS="\t"; numInputFields='${numFields}'+0;annotStartIdx=numInputFields+2;nextStepFile="'${INSEGMBASE}'.unannotated.bed"}{

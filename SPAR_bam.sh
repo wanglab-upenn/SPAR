@@ -53,8 +53,9 @@ fi
 echo "FILETYPE=${FILETYPE}; isBAM=${isBAM}; EXPNAME=${EXPNAME}; OUTDIR=${OUTDIR}; OUTBAM=${OUTBAM}"
 mkdir -p ${OUTDIR}
 
-LOGSPAR=${OUTDIR}/SPAR.log
-LOGSPAR=${OUTDIR}/`basename ${INFILE}`.SPAR.log
+#LOGSPAR=${OUTDIR}/SPAR.log
+#LOGSPAR=${OUTDIR}/`basename ${INFILE}`.SPAR.log
+LOGSPAR=${OUTDIR}/`basename ${OUTBAM}`.SPAR.log
 >${LOGSPAR}
 
 function runScript
@@ -225,11 +226,11 @@ ls ${OUTBAM}*.bigWig | tee -a ${LOGSPAR}
 printL "\nTrack files (Called peaks):"
 ls ${OUTBAM}*.bigBed | tee -a ${LOGSPAR}
 
-printL "Annotation output:"
+printL "\nAnnotation output:"
 #ls ${OUTBAM}.*.bedgraph.segm.annot.final | tee -a ${LOGSPAR}
 ls ${OUTBAM}.annot.final | tee -a ${LOGSPAR}
 
-printL "Un-annotated output:" 
+printL "\nUn-annotated output:" 
 #ls ${OUTBAM}.*.bedgraph.segm.unannotated.bed | tee -a ${LOGSPAR}
 ls ${OUTBAM}.unannot | tee -a ${LOGSPAR}
 
