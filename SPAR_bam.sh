@@ -95,10 +95,13 @@ runScript "bedgraph_to_bigwig.sh ${OUTBAM}.neg.bedgraph"
 
 printT "Segmenting [positive strand]"
 #runScript "segment_bedgraph_entropy.sh ${OUTBAM}.pos.bedgraph pos"
-runScript "segment_bedgraph_entropy_position.sh ${OUTBAM}.pos.bedgraph pos"
+runScript "segment_bedgraph_entropy_position2.sh ${OUTBAM}.pos.bedgraph pos"
 printT "Segmenting [negative strand]"
 #runScript "segment_bedgraph_entropy.sh ${OUTBAM}.neg.bedgraph neg"
-runScript "segment_bedgraph_entropy_position.sh ${OUTBAM}.neg.bedgraph neg"
+runScript "segment_bedgraph_entropy_position2.sh ${OUTBAM}.neg.bedgraph neg"
+
+
+numFields=$(awk '{print NF; exit}' ${OUTBAM}.pos.bedgraph.segm)
 
 printT "Creating track files (Raw signal)"
 runScript "create_bedgraph_track.sh ${OUTBAM}.pos.bedgraph"
@@ -110,9 +113,9 @@ runScript "create_peak_track.sh ${OUTBAM}.neg.bedgraph.segm"
 
 
 printT "Annotating [positive strand]"
-runScript "annotate_segm2.sh ${OUTBAM}.pos.bedgraph.segm"
+runScript "annotate_segm3.sh ${OUTBAM}.pos.bedgraph.segm"
 printT "Annotating [negative strand]"
-runScript "annotate_segm2.sh ${OUTBAM}.neg.bedgraph.segm"
+runScript "annotate_segm3.sh ${OUTBAM}.neg.bedgraph.segm"
 
 
 printT "DONE."
@@ -122,7 +125,11 @@ printT "DONE."
 
 # add headers
 #awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition", "annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
-awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition", "annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' > ${OUTBAM}.annot.final
+
+
+#awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition", "annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' > ${OUTBAM}.annot.final
+#chr,a,b,peakID,exprVal,strand,entropy5p,normEntropy5p,maxEntropy5p, entropy3p, normEntropy3p, maxEntropy3p, maxProb5p, maxProb3p, maxPosition5p, maxPosition3p, beforePeakReadCnt, peakFoldChange;
+awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition", "beforePeakReadCnt", "peakFoldChange", "annotChr", "annotChrStart", "annotChrEnd", "annotID", "annotRNAclass","annotStrand","overlap"; exit}' > ${OUTBAM}.annot.final
 positiveannot="${OUTBAM}.pos.bedgraph.segm.annot.final"
 if [ -f ${positiveannot} ]; then
   cat ${positiveannot} >> ${OUTBAM}.annot.final
@@ -134,7 +141,8 @@ fi
 
 
 #awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition"; exit}' |  cat - ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
-awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition"; exit}' > ${OUTBAM}.unannot
+#awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition"; exit}' > ${OUTBAM}.unannot
+awk 'BEGIN{OFS="\t"; print "#chr", "chrStart", "chrEnd", "peakID", "expressionValue", "strand", "entropy5p", "normalizedEntropy5p", "maxEntropy5p","entropy3p","normalizedEntropy3p","maxEntropy3p","same5pFraction","same3pFraction", "max5pPosition", "max3pPosition", "beforePeakReadCnt", "peakFoldChange"; exit}' > ${OUTBAM}.unannot
 positiveunannot="${OUTBAM}.pos.bedgraph.segm.unannotated.bed"
 if [ -f "${positiveunannot}"  ]; then
   cat ${positiveunannot} >> ${OUTBAM}.unannot
@@ -149,21 +157,23 @@ fi
 #cat ${OUTBAM}.*.bedgraph.segm.annot.final > ${OUTBAM}.annot.final
 #cat ${OUTBAM}.*.bedgraph.segm.unannotated.bed > ${OUTBAM}.unannot
 
+#echo "numFields=${numFields}"
+
 # annotation summary
 annotSummary=${OUTBAM}.mapped_reads_annotation_summary.txt
 #awk 'BEGIN{OFS="\t";}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, totalExprAnnot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,totalExprUnannot/totalExpr}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${annotSummary} 
-awk 'BEGIN{OFS="\t";totalAnnotPeakCnt=0; totalUnannotPeakCnt=0;totalExprAnnot=0;totalExprUnannot=0;}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$21; exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; propAnnot=0; if (totalExpr>0) propAnnot=totalExprAnnot/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, propAnnot; propUnannot=0; if (totalExpr>0) propUnannot=totalExprUnannot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,propUnannot}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${annotSummary} 
+awk 'BEGIN{OFS="\t";totalAnnotPeakCnt=0; totalUnannotPeakCnt=0;totalExprAnnot=0;totalExprUnannot=0;numFields='${numFields}'+0;}{if ($0~/^#/) {next}; if (NR==FNR) {exprVal=$5; rnaClass=$(numFields+5); exprPerClass[rnaClass]+=exprVal;classCnt[rnaClass]+=1;totalExprAnnot+=exprVal; totalAnnotPeakCnt+=1}else{exprVal=$5; totalExprUnannot+=exprVal;totalUnannotPeakCnt+=1;}}END{totalPeakCnt=totalAnnotPeakCnt+totalUnannotPeakCnt; totalExpr=totalExprAnnot+totalExprUnannot; for (rnaClass in exprPerClass) print rnaClass, classCnt[rnaClass], exprPerClass[rnaClass], exprPerClass[rnaClass]/totalExpr; propAnnot=0; if (totalExpr>0) propAnnot=totalExprAnnot/totalExpr; print "Annotated", totalAnnotPeakCnt, totalExprAnnot, propAnnot; propUnannot=0; if (totalExpr>0) propUnannot=totalExprUnannot/totalExpr; print "Unannotated",totalUnannotPeakCnt,totalExprUnannot,propUnannot}' ${OUTBAM}.annot.final ${OUTBAM}.unannot | sort -k1,1 | awk 'BEGIN{OFS="\t"; print "#RNA class","Peaks","Reads","Fraction of reads"}{print}' > ${annotSummary} 
 finalAnnot="${OUTBAM}.annot.final"
 finalUnannot="${OUTBAM}.unannot"
 
-
-awk 'BEGIN{FS="\t"; OFS="\t";}
+awk 'BEGIN{FS="\t"; OFS="\t";numFields='${numFields}'+0;}
      {
-       if (NR==1) next;
-       annotID=$20;
+       if (NR==1) next; # skip header
+       annotID=$(numFields+4);
+       #print annotID;
        n=split(annotID,a,":");
        geneID=a[n];
-       annotClass=$21;
+       annotClass=$(numFields+5);
        if (ids[geneID]!=1)
        {
           geneCnt[annotClass]+=1;
