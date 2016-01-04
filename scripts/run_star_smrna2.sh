@@ -83,8 +83,10 @@ awk 'BEGIN{OFS="\t"; filtPos=0; filtNeg=0; alnCnt=0; totalAln=0; nFastQReads='${
       print "Removed 5p clipped [positive strand]:",filtPos,filtPos/totalAln*100 > filter5pStatsFile;
       print "Removed 5p clipped [negative strand]:", filtNeg,filtNeg/totalAln*100 > filter5pStatsFile;
       print "Total after removing 5p clipped:",alnCnt,alnCnt/totalAln*100 > filter5pStatsFile;
-      print "Alignments [no soft clipping]", noSoftClipCnt > softClipStatsFile;
-      print "Alignments [with soft clipping]", softClipCnt > softClipStatsFile;
+      #print "Alignments [no soft clipping]", noSoftClipCnt > softClipStatsFile;
+      #print "Alignments [with soft clipping]", softClipCnt > softClipStatsFile;
+      print "Alignments [no soft clipping]", noSoftClipCnt, noSoftClipCnt/alnCnt*100.0 > softClipStatsFile;
+      print "Alignments [with soft clipping]", softClipCnt, softClipCnt/alnCnt*100.0 > softClipStatsFile;
       print "Reads [no soft clipping]", readNoScnt, readNoScnt/nFastQReads*100.00 > softClipStatsFile;
       print "Reads [with soft clipping]", readScnt, readScnt/nFastQReads*100.00 > softClipStatsFile;
          }' ${starOutDir}/Aligned.out.sam > ${starOutDir}/Aligned.out.filtered.sam
