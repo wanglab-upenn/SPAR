@@ -148,7 +148,7 @@ if [ -f "${positiveunannot}"  ]; then
   cat ${positiveunannot} >> ${OUTBAM}.unannot
 fi
 
-negativeunannot="${OUTBAM}.pos.bedgraph.segm.unannotated.bed"
+negativeunannot="${OUTBAM}.neg.bedgraph.segm.unannotated.bed"
 if [ -f "${negativeunannot}" ]; then
   cat ${negativeunannot} >> ${OUTBAM}.unannot
 fi
