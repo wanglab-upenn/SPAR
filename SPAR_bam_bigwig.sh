@@ -8,7 +8,7 @@ INFILE=$1
 
 if [ $# -lt 1 ]
 then
-  echo "USAGE: `basename $0` <reads.fastq|aln.bam> <SPAR_output_directory>"
+  echo "USAGE: `basename $0` <reads.fastq|aln.bam|signal.bigWig> <SPAR_output_directory>"
   exit 1
 fi
 
@@ -24,7 +24,8 @@ fi
 # if BIGWIG, proceed from segmentation
 
 FILETYPE=${INFILE##*.}
-lcFILETYPE=$(echo ${FILETYPE} | awk '{print tolower($0)}')
+lcFILETYPE=$(echo ${FILETYPE} | awk '{print tolower($0)}') # lower-case 
+ucFILETYPE=$(echo ${FILETYPE} | awk '{print toupper($0)}') # upper-case 
 
 isBAM=0
 isBIGWIG=0
@@ -71,7 +72,7 @@ elif [ "${isBAM}" = 1 ]; then
   OUTBAM=${INFILE}
 elif [ "${isBIGWIG}" = 1 ]; then
   if [ -z "$2" ]; then
-    # if no output directory is provided, use BAM file directory
+    # if no output directory is provided, use bigWig file directory
     OUTDIR=`dirname ${INFILE}`  #${SPARDIR}/${EXPNAME}
   else
     # if output directory is specified, use it
@@ -105,7 +106,7 @@ function printL
 
 printL "Output directory:\n${OUTDIR}\n"
 
-printT "SPAR BAM run started"
+printT "SPAR ${ucFILETYPE} run started"
 
 if [ "${isFASTQ}" = 1 ]; then
   runScript "run_star_smrna2.sh ${INFILE} ${maxMismatchCnt} ${maxMapCnt} ${OUTDIR}"
@@ -129,10 +130,11 @@ if [ "${isBIGWIG}" = 1 ]; then
   OUTBAM=${OUTDIR}/`basename "${INFILE}"`
   # convert bigwig to bedGraph
   INBIGWIG=${INFILE}
-  #strand="pos" # need to SET the strand for BIGWIG???
+  # need to SET the strand for BIGWIG!!!!
   strand=${INBIGWIG%.*}
   strand=${strand##*.}
   if [ "${strand}" != "pos" ] && [ "${strand}" != "neg" ]; then
+     # set strand="positive" if strand information is not provided
      strand="pos"
   fi
   #echo "strand=${strand}"
