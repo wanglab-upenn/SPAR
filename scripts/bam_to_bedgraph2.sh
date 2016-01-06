@@ -37,7 +37,8 @@ ${GAWK} 'function cmp_num_idx(i1, v1, i2, v2)
              #if (f_prev > 0.0001)
              # output intervals will be in UCSC format [0-based, half-open) 
              if (f_prev >= 1)
-               print chr, bs-1, i-1, f_prev > outfile
+               #print chr, bs-1, i-1, f_prev > outfile
+               printf "%s\t%d\t%d\t%.4f\n", chr, bs-1, i-1, f_prev > outfile
              bs = i;
             }
             f_prev = f;

@@ -25,6 +25,7 @@ GAWK=${BINDIR}/gawk-4.1.0/gawk
 # UCSC tools
 BGTOBIGWIG=${BINDIR}/bedGraphToBigWig
 BEDTOBIGBED=${BINDIR}/bedToBigBed
+BIGWIGTOBEDGRAPH=${BINDIR}/bigWigToBedGraph
 
 # Adapter trimming
 CUTADAPT=${BINDIR}/cutadapt-1.8.1/bin/cutadapt
