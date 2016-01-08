@@ -364,19 +364,22 @@ if [ "${isFASTQ}" = 1 ]; then
   module="module1"
   step="mapping"
   outRscript="${OUTDIR}/${module}_${step}.r"
-  cat ${SPARPATH}/scripts/R/${module}/${step}/*.r | \
+  submoduleDir=${SPARPATH}/scripts/R/${module}/${step}
+  cat ${submoduleDir}/*.r | \
      awk 'BEGIN{wdir="wdir=\"'${OUTDIR}'\""; print wdir;}{print}' - > ${outRscript}
   ${RSCRIPT} ${outRscript}
+  runScript "make_submodule_html.sh ${submoduleDir}" > ${OUTDIR}/${module}_${step}.html  
 
   # insilico cut stats
   module="module1"
   step="insilico_cut"
   outRscript="${OUTDIR}/${module}_${step}.r"
   fprefix=`basename "${OUTBAM}"`
-  cat ${SPARPATH}/scripts/R/${module}/${step}/*.r | \
+  submoduleDir=${SPARPATH}/scripts/R/${module}/${step}
+  cat ${submoduleDir}/*.r | \
      awk 'BEGIN{wdir="wdir=\"'${OUTDIR}'\""; print wdir; fprefix="fprefix=\"'${fprefix}'\""; print fprefix; maxReadLength="maxReadLength='${maxReadLength}'"; print maxReadLength;}{print}' - > ${outRscript}
   ${RSCRIPT} ${outRscript}
-
+  runScript "make_submodule_html.sh ${submoduleDir}" > ${OUTDIR}/${module}_${step}.html  
 fi
 
 
