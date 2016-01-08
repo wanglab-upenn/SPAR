@@ -41,6 +41,7 @@ maxMismatchCnt=0 # maximum number of genomic mismatches
 maxMapCnt=100 # maximum number of places a read can map to
 minMappedLength=14 # minimum *mapped* length
 
+RSCRIPT=/usr/local/bin/Rscript
 
 function printT
 {
