@@ -376,5 +376,7 @@ if [ "${isFASTQ}" = 1 ]; then
   cat ${SPARPATH}/scripts/R/${module}/${step}/*.r | \
      awk 'BEGIN{wdir="wdir=\"'${OUTDIR}'\""; print wdir; fprefix="fprefix=\"'${fprefix}'\""; print fprefix; maxReadLength="maxReadLength='${maxReadLength}'"; print maxReadLength;}{print}' - > ${outRscript}
   ${RSCRIPT} ${outRscript}
+
 fi
+
 
