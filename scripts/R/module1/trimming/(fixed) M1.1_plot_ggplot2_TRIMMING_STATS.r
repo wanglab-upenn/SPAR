@@ -18,6 +18,9 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggplot2))
 #suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(png))
+suppressPackageStartupMessages(library(Cairo))
+
 
 #args<-commandArgs(TRUE)
 #datafile=args[1] # input file
@@ -51,7 +54,7 @@ chart = ggplot(DN_f, aes(x = DN_f[,XTITLE], y = DN_f[,YTITLE], fill = Percentage
 
 plot(chart)
 ggsave(pdffile,dpi=600)
-ggsave(pngfile,dpi=600)
+ggsave(pngfile,dpi=600,type="cairo-png")
 
 }
 

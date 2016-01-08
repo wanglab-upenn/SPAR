@@ -17,6 +17,8 @@ YTITLE="Count"
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggplot2))
 #suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(png))
+suppressPackageStartupMessages(library(Cairo))
 
 #args<-commandArgs(TRUE)
 #datafile=args[1] # input file
@@ -58,7 +60,7 @@ theme(legend.position="none",axis.text = element_text(size = 12),axis.title = el
 
 plot(chart)
 ggsave(pdffile,dpi=600)
-ggsave(pngfile,dpi=600)
+ggsave(pngfile,dpi=600, type="cairo-png")
 
 }
 

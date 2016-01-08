@@ -21,6 +21,8 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggplot2))
 #suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(png))
+suppressPackageStartupMessages(library(Cairo))
 
 #args<-commandArgs(TRUE)
 #datafile=args[1] # input file
@@ -65,7 +67,7 @@ geom_bar(stat = "identity", width = .7, fill="blue") +
 
 plot(chart)
 ggsave(pdffile,dpi=600)
-ggsave(pngfile,dpi=600)
+ggsave(pngfile,dpi=600,type="cairo-png")
 
 }
 

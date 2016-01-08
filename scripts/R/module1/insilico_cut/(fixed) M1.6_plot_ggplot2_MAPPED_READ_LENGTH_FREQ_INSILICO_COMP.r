@@ -26,6 +26,8 @@ suppressPackageStartupMessages(library(ggplot2))
 #suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(gridExtra))
+suppressPackageStartupMessages(library(png))
+suppressPackageStartupMessages(library(Cairo))
 
 #args<-commandArgs(TRUE)
 #datafile1=args[1] # input file 1
@@ -94,7 +96,7 @@ theme(legend.position="right",legend.text=element_text(size=10),axis.text = elem
 
 chart3=grid.arrange(chart1,chart2,nrow=2)
 ggsave(pdffile,chart3,dpi=600)
-ggsave(pngfile,chart3,dpi=600)
+ggsave(pngfile,chart3,dpi=600,type="cairo-png")
 
 #pdf(file = pdffile)
 #print(plot(grid.arrange(chart1,chart2,nrow=2)))
