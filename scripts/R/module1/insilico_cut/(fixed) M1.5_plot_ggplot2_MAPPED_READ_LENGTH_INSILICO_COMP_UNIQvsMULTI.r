@@ -24,8 +24,8 @@ suppressPackageStartupMessages(library(ggplot2))
 #suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(gridExtra))
-suppressPackageStartupMessages(library(png))
-suppressPackageStartupMessages(library(Cairo))
+#suppressPackageStartupMessages(library(png))
+#suppressPackageStartupMessages(library(Cairo))
 
 #args<-commandArgs(TRUE)
 #datafile1=args[1] # input file 1

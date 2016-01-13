@@ -18,8 +18,8 @@ suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(ggplot2))
 #suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(plyr))
-suppressPackageStartupMessages(library(png))
-suppressPackageStartupMessages(library(Cairo))
+#suppressPackageStartupMessages(library(png))
+#suppressPackageStartupMessages(library(Cairo))
 
 
 #args<-commandArgs(TRUE)
